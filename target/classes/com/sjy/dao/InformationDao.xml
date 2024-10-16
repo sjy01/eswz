@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sjy.dao.InformationDao">
+    <resultMap id="HelpInformation" type="Information">
+        <result property="id" column="id"></result>
+        <result property="content" column="content"></result>
+        <result property="addtime" column="addtime"></result>
+        <result property="state" column="state"></result>
+        <association property="users" javaType="Users">
+            <result property="userid" column="userid"></result>
+            <result property="username" column="username"></result>
+            <result property="img" column="img"></result>
+        </association>
+    </resultMap>
+<!--    i.userid=u.userid查出数据相对应不重复-->
+    <select id="allInformation" parameterType="map" resultMap="HelpInformation">
+        select i.*,u.* from information as i,user as u where i.userid=u.userid
+            <if test="information!=null and information.content!=null and information.content!=''">
+                and content like concat('%',#{information.content},'%')
+            </if>
+        <if test="information!=null and information.state!=null">
+            and i.state=#{information.state}
+        </if>
+        order by addtime desc limit #{currentIndex},#{pageSize}
+    </select>
+    <!--    返回记录数-->
+    <select id="getInformationCount" parameterType="Information" resultType="Integer">
+        select count(*) from information
+        <trim prefix="where" prefixOverrides="and">
+            <if test="content!=null and content!=''">
+                and content like concat('%',#{content},'%')
+            </if>
+            <if test="state!=null">
+                and state=#{state}
+            </if>
+        </trim>
+    </select>
+<!--    插入信息-->
+    <insert id="intertInformation" parameterType="Information">
+        insert into information (content,userid,addtime,state)
+        value (#{content},#{users.userid},#{addtime},#{state})
+    </insert>
+<!--    更新信息-->
+    <update id="updateInformation" parameterType="Information">
+        update information set content=#{content},addtime=#{addtime} where id=#{id}
+    </update>
+<!--    删除信息-->
+    <delete id="deleteInformation" parameterType="Integer">
+        delete from information where id=#{id}
+    </delete>
+    <!--    返回记录数-->
+    <select id="getMyInformationCount" parameterType="Integer" resultType="Integer">
+        select count(*) from information where userid=#{user.userid}
+    </select>
+<!--    查询我的信息-->
+    <select id="MyInformation" parameterType="map" resultType="Information">
+        select * from information where userid=#{information.users.userid} order by addtime desc limit #{currentIndex},#{pageSize}
+    </select>
+<!--    根据信息id查询-->
+    <select id="getInformationById" parameterType="Integer" resultType="Information">
+        select * from information where id=#{id}
+    </select>
+</mapper>

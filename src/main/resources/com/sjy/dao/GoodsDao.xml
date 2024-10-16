@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sjy.dao.GoodsDao">
+<resultMap id="goodsClassification" type="Goods">
+<id column="goodsid" property="goodsid"></id>
+    <result column="name" property="name"></result>
+    <result column="image" property="image"></result>
+    <result column="price" property="price"></result>
+    <result column="newprice" property="newprice"></result>
+    <result column="stock" property="stock"></result>
+    <result column="newtime" property="newtime"></result>
+    <result column="describe" property="describe"></result>
+    <result column="state" property="state"></result>
+    <result column="userid" property="userid"></result>
+    <association property="classification" javaType="Classification">
+        <id column="classificationid" property="classificationid"></id>
+        <result column="classificationname" property="classificationname"></result>
+    </association>
+</resultMap>
+<!--分页查询商品-->
+    <select id="getGoods" parameterType="map" resultMap="goodsClassification">
+select g.*,c.* from goods as g,classification as c where g.classification=c.classificationid
+<if test="goods!=null and goods.classification!=null and goods.classification.classificationid!=null and goods.classification.classificationid>0">
+    and g.classification=#{goods.classification.classificationid}
+</if>
+<if test="goods!=null and goods.name!=null and goods.name!=''">
+and name like concat('%',#{goods.name},'%')
+</if>
+        <if test="goods!=null and goods.state!=null">
+and g.state=#{goods.state}
+        </if>
+order by newtime desc limit #{currentIndex},#{pageSize}
+    </select>
+<!--    查询商品数量-->
+    <select id="getGoodsCount" parameterType="Goods" resultType="Integer">
+select count(*) from goods
+        <trim prefix="where" prefixOverrides="and">
+            <if test="classification!=null and classification.classificationid!=null and classification.classificationid>0">
+                and classification=#{classification.classificationid}
+            </if>
+            <if test="name!=null and name!=''">
+                and name like concat('%',#{name},'%')
+            </if>
+<if test="state!=null">
+and state=#{state}
+</if>
+        </trim>
+    </select>
+<!--    根据商品ID查询商品（详情）-->
+    <select id="getGoodsById" parameterType="Integer" resultType="Goods">
+        select * from goods where goodsid=#{goodsid}
+    </select>
+<!--    发布商品-->
+    <insert id="inserGoods" parameterType="Goods">
+insert into goods(name,image,price,newprice,stock,newtime,`describe`,`state`,userid,classification)
+value (#{name},#{image},#{price},#{newprice},#{stock},#{newtime},#{describe},#{state},#{userid},#{classification.classificationid})
+    </insert>
+<!--    查询我发布的商品-->
+    <select id="getGoodsByUserId" parameterType="map" resultType="Goods">
+        select * from goods where userid=#{goods.userid} order by newtime desc limit #{currentIndex},#{pageSize}
+    </select>
+
+    <!--    查询我发布的商品-->
+    <select id="getMyGoods" parameterType="Integer" resultType="Goods">
+        select * from goods where userid=#{userid} and `state`=true order by newtime desc
+    </select>
+<!--    查询我的商品数量-->
+    <select id="getMyGoodsCount" parameterType="Integer" resultType="Integer">
+        select count(*) from goods where userid=#{userid}
+    </select>
+<!--    修改我的商品-->
+    <update id="updateMyGoods" parameterType="Goods">
+        update goods set name=#{name},image=#{image},price=#{price},stock=#{stock},newtime=#{newtime},`state`=#{state},
+                         `describe`=#{describe},classification=#{classification.classificationid}
+where goodsid=#{goodsid}
+    </update>
+<!--    删除我的商品-->
+    <delete id="deleteMyGoods" parameterType="Integer" >
+        delete from goods where goodsid=#{goodsid}
+    </delete>
+</mapper>

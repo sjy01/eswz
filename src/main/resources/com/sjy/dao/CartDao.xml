@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sjy.dao.CartDao">
+    <!--    根据商品Id查询收藏夹内是否有该商品-->
+    <select id="getGoodsByGoodsId" parameterType="Integer" resultType="Cart">
+        select * from shoppingcart where goodsid=#{goodsid} and userid=#{userid}
+    </select>
+<!--    加入收藏夹-->
+    <insert id="insertCart" parameterType="Cart">
+        insert into shoppingcart(goodsid,userid,addtime)
+           values (#{goodsid},#{userid},#{addtime})
+    </insert>
+    <resultMap id="cart" type="Shooping">
+        <result column="addtime" property="addtime"></result>
+        <association property="goods" javaType="Goods">
+            <result column="goodsid" property="goodsid"></result>
+            <result column="name" property="name"></result>
+            <result column="image" property="image"></result>
+            <result column="newprice" property="newprice"></result>
+            <result column="stock" property="stock"></result>
+            <result column="describe" property="describe"></result>
+            <result column="state" property="state"></result>
+            <result column="userid" property="userid"></result>
+        </association>
+    </resultMap>
+<!--    查询收藏夹中的商品-->
+    <select id="getCart" parameterType="String" resultMap="cart">
+        select s.* , g.* from shoppingcart as s,goods as g  where s.goodsid=g.goodsid and s.userid=#{userid}
+    </select>
+<!--    移除收藏夹的商品-->
+    <delete id="deleteGoodsById" parameterType="Integer" >
+        delete from shoppingcart where goodsid=#{goodsid}
+    </delete>
+
+</mapper>

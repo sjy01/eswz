@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sjy.dao.ClassificationDao">
+<!--    查询列别-->
+    <select id="getAllClassification" parameterType="Classification" resultType="Classification">
+        select * from classification
+        <if test="state!=null">
+            where state=#{state}
+        </if>
+    </select>
+<!--    插入类别-->
+    <insert id="addClassification" parameterType="Classification">
+        insert into classification(classificationname)
+        value (#{classificationname})
+    </insert>
+<!--更新类别-->
+    <update id="updateClassification" parameterType="Classification">
+        update classification set classificationname=#{classificationname}
+where classificationid=#{classificationid}
+    </update>
+<!--    更新类别状态-->
+    <update id="updateState" parameterType="Classification">
+        update classification set `state`=#{state} where classificationid=#{classificationid}
+    </update>
+
+</mapper>

@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sjy.dao.NoticeDao">
+    <select id="getAllNotice" parameterType="map" resultType="notice">
+        select * from notice
+        <trim prefix="where" prefixOverrides="and">
+        <if test="notice!=null and notice.noticecontent!=null and notice.noticecontent!=''">
+            and noticecontent like concat('%',#{notice.noticecontent},'%')
+        </if>
+        </trim>
+        order by newtime desc limit #{currentIndex},#{pageSize}
+    </select>
+    <!--    返回记录数-->
+    <select id="getNoticeCount" parameterType="notice" resultType="Integer">
+        select count(*) from notice
+        <trim prefix="where" prefixOverrides="and">
+            <if test="noticecontent!=null and noticecontent!=''">
+                and noticecontent like concat('%',#{noticecontent},'%')
+            </if>
+        </trim>
+    </select>
+<!--    插入公告-->
+    <insert id="addNotice" parameterType="notice">
+        insert into notice (noticecontent,newtime)
+            value (#{noticecontent},#{newtime})
+    </insert>
+<!--删除公告-->
+    <delete id="deleteNotice" parameterType="Integer">
+        delete from notice where noticeid=#{noticeid}
+    </delete>
+
+</mapper>
